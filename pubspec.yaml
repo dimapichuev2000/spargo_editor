@@ -1,0 +1,20 @@
+name: spargo_editor
+description: Flutter виджет для работы с Quill.js редактором (веб-платформа)
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.8.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  uuid: ^4.5.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
