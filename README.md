@@ -17,11 +17,6 @@ dependencies:
   quill_editor:
     path: packages/quill_editor
 ```
-
-### Публикация (опционально)
-
-Если вы хотите опубликовать пакет, убедитесь, что `publish_to: none` удален из `pubspec.yaml`.
-
 ## Настройка веб-платформы
 
 **⚠️ ВАЖНО:** Для корректной работы виджета необходимо настроить веб-платформу.
@@ -199,11 +194,6 @@ String? text = editorKey.currentState?.getText();
 editorKey.currentState?.setContent('<p>Новый текст</p>');
 ```
 
-## Зависимости
-
-- `flutter` - Flutter SDK
-- `uuid` - для генерации уникальных ID редакторов
-
 ## Поддерживаемые платформы
 
 - **Web** (основная платформа) - требует настройки `web/index.html`
@@ -213,6 +203,3 @@ editorKey.currentState?.setContent('<p>Новый текст</p>');
 
 См. файл `example/main.dart` для полного примера использования.
 
-## Лицензия
-
-См. основной проект для информации о лицензии.
