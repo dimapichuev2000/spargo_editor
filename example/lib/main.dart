@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spargo_editor/spargo_editor.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 void main() {
   runApp(const MyApp());
@@ -55,12 +56,13 @@ class _MyHomePageState extends State<MyHomePage> {
               onChanged: (html) {
                 setState(() {
                   _content = html;
+                  print(_content);
                 });
               },
             ),
             const SizedBox(height: 16),
             const Text(
-              'HTML содержимое:',
+              'Предпросмотр HTML:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -71,12 +73,22 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: SingleChildScrollView(
-                  child: Text(
-                    _content.isEmpty ? 'Пусто' : _content,
-                    style: const TextStyle(fontFamily: 'monospace'),
-                  ),
-                ),
+                child: _content.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'Пусто',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        child: SizedBox(
+                          width: 400,
+                          child: HtmlWidget(
+                            _content,
+                            textStyle: const TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ),
               ),
             ),
           ],
