@@ -49,34 +49,109 @@
     border-bottom: 1px solid #C4CCD8 !important;
   }
   
-  /* Стили для всех кнопок toolbar */
+  /* Стили для кнопок toolbar */
   [id^="quill-editor-"] .ql-toolbar button {
-    display: inline-block;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    margin: 0 1px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 28px !important;
+    height: 28px !important;
+    padding: 0 !important;
+    margin: 0 1px !important;
+    border: 0 !important;
+    border-radius: 4px !important;
+    background: transparent !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease !important;
   }
   
   [id^="quill-editor-"] .ql-toolbar button:hover {
-    background-color: #F3F4F6;
-    border-radius: 4px;
+    background-color: #F3F4F6 !important;
   }
   
   [id^="quill-editor-"] .ql-toolbar button.ql-active {
-    background-color: #E5E7EB;
-    border-radius: 4px;
+    background-color: #E5E7EB !important;
   }
   
-  /* Убеждаемся, что SVG иконки видны */
+  [id^="quill-editor-"] .ql-toolbar button:focus {
+    outline: none !important;
+  }
+  
+  /* SVG иконки */
   [id^="quill-editor-"] .ql-toolbar button svg {
-    display: block;
-    width: 18px;
-    height: 18px;
-    margin: 0 auto;
+    width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* Выпадающие списки (заголовки) */
+  [id^="quill-editor-"] .ql-toolbar .ql-picker-label {
+    border: 0 !important;
+    border-radius: 4px !important;
+    padding-left: 8px !important;
+    padding-right: 20px !important;
+    height: 28px !important;
+    line-height: 28px !important;
+    transition: background-color 0.15s ease !important;
+  }
+  
+  [id^="quill-editor-"] .ql-toolbar .ql-picker-label:hover {
+    background-color: #F3F4F6 !important;
+  }
+  
+  [id^="quill-editor-"] .ql-toolbar .ql-picker.ql-expanded .ql-picker-label {
+    background-color: #E5E7EB !important;
+  }
+  
+  /* Кнопка выбора цвета */
+  [id^="quill-editor-"] .ql-toolbar .ql-color-picker {
+    width: 28px !important;
+    height: 28px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    vertical-align: middle !important;
+    position: relative !important;
+    top: 2px !important;
+  }
+  
+  [id^="quill-editor-"] .ql-toolbar .ql-color-picker .ql-picker-label {
+    padding: 2px 4px !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  [id^="quill-editor-"] .ql-toolbar .ql-color-picker .ql-picker-label svg {
+    margin: 0 auto !important;
+  }
+  
+  /* Выпадающая панель с цветами */
+  [id^="quill-editor-"] .ql-toolbar .ql-color-picker.ql-expanded .ql-picker-options {
+    display: block !important;
+    position: absolute !important;
+    z-index: 1000 !important;
+    background-color: white !important;
+    border: 1px solid #C4CCD8 !important;
+    border-radius: 4px !important;
+    padding: 8px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    margin-top: 3px !important;
+  }
+  
+  [id^="quill-editor-"] .ql-toolbar .ql-color-picker .ql-picker-options {
+    display: none;
+  }
+  
+  [id^="quill-editor-"] .ql-toolbar .ql-color-picker .ql-picker-item {
+    border-radius: 2px !important;
+    cursor: pointer !important;
+    transition: border 0.1s ease !important;
+  }
+  
+  [id^="quill-editor-"] .ql-toolbar .ql-color-picker .ql-picker-item:hover {
+    border: 2px solid #06c !important;
   }
   
   /* Стили для кнопок отступов */

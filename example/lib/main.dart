@@ -81,12 +81,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       )
                     : SingleChildScrollView(
-                        child: SizedBox(
-                          width: 400,
-                          child: HtmlWidget(
-                            _content,
-                            textStyle: const TextStyle(fontSize: 16),
-                          ),
+                        child: HtmlWidget(
+                          _content,
+                          textStyle: const TextStyle(fontSize: 16),
                         ),
                       ),
               ),

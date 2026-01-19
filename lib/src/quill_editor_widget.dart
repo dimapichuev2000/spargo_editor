@@ -99,10 +99,11 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
       final editorContainer = document.getElementById(editorContainerId.toJS);
       if (editorContainer == null) return;
 
-      // Toolbar: Heading, форматирование, списки, отступы, ссылки, изображения
+      // Toolbar: Heading, форматирование, цвет текста, списки, отступы, ссылки, изображения
       final toolbarOptions = [
         [{'header': [1, 2, 3, false].jsify()}.jsify()].jsify(),
         ['bold', 'italic', 'underline', 'strike'].map((e) => e.toJS).toList().jsify(),
+        [{'color': <JSAny?>[].jsify()}.jsify()].jsify(),
         [{'list': 'ordered'.toJS}.jsify(), {'list': 'bullet'.toJS}.jsify()].jsify(),
         [{'indent': '-1'.toJS}.jsify(), {'indent': '+1'.toJS}.jsify()].jsify(),
         ['link', 'image'].map((e) => e.toJS).toList().jsify(),
