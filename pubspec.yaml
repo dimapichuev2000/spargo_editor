@@ -1,5 +1,5 @@
 name: spargo_editor
-description: "A new Flutter package project."
+description: "A text editor based on Ouill.js for Flutter"
 version: 0.0.2
 homepage:
 
