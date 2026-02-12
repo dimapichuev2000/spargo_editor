@@ -1,4 +1,7 @@
 
+## 0.0.4
+* Сhanged the download
+
 ## 0.0.3
 * Fix version
 

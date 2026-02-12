@@ -39,7 +39,6 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
   late final String _editorId;
   QuillEditor? _quillEditor;
   int _initAttempts = 0;
-  bool _isLoading = true;
 
   @override
   void initState() {
@@ -66,9 +65,18 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
         ..style.minHeight = '0';
       container.append(editorDiv);
 
-      Future.delayed(const Duration(milliseconds: 500), () {
+      const maxFrames = 60; // ~1 сек при 60 FPS
+      var framesWaited = 0;
+      void tryInit() {
+        if (!mounted || framesWaited >= maxFrames) return;
+        if (html.document.getElementById(editorDiv.id) == null) {
+          framesWaited++;
+          html.window.animationFrame.then((_) => tryInit());
+          return;
+        }
         _initializeQuill(editorDiv.id);
-      });
+      }
+      html.window.animationFrame.then((_) => tryInit());
 
       return container;
     });
@@ -80,7 +88,6 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
         _initAttempts++;
         if (_initAttempts >= 30) {
           if (mounted) {
-            setState(() => _isLoading = false);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Не удалось загрузить редактор'),
@@ -128,10 +135,7 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
         }).toJS);
       }
 
-      if (mounted) setState(() => _isLoading = false);
-    } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    } catch (_) {}
   }
 
   /// Получить HTML содержимое редактора
@@ -169,32 +173,8 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Stack(
-          children: [
-            HtmlElementView(
-              viewType: _editorId,
-            ),
-            if (_isLoading)
-              Container(
-                color: Colors.white.withOpacity(0.95),
-                child: const Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text(
-                        'Загрузка редактора...',
-                        style: TextStyle(
-                          color: Color(0xFF6B7280),
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
+        child: HtmlElementView(
+          viewType: _editorId,
         ),
       ),
     );
