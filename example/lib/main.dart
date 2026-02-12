@@ -31,6 +31,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String _content = '';
+  bool _readOnly = false;
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +45,34 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Редактор:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Редактор:',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _readOnly = !_readOnly;
+                    });
+                  },
+                  icon: Icon(_readOnly ? Icons.lock : Icons.lock_open),
+                  label: Text(_readOnly ? 'Только чтение' : 'Редактирование'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _readOnly ? Colors.orange : Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             QuillEditorWidget(
-              initialContent: '<p>Начните вводить текст...</p>',
+              initialContent: _content.isNotEmpty ? _content : '<p>Начните вводить текст...</p>',
               height: 400,
               placeholder: 'Введите текст...',
+              readOnly: _readOnly,
               onChanged: (html) {
                 setState(() {
                   _content = html;

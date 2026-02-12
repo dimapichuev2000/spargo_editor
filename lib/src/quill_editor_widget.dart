@@ -47,6 +47,43 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
     _registerViewFactory();
   }
 
+  @override
+  void didUpdateWidget(QuillEditorWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.readOnly != widget.readOnly && _quillEditor != null) {
+      _updateReadOnly();
+    }
+  }
+
+  void _updateReadOnly() {
+    if (_quillEditor == null) return;
+    
+    try {
+      // Обновляем readOnly через enable() - enable(true) включает редактирование
+      final enabled = !widget.readOnly;
+      _quillEditor!.enable(enabled.toJS);
+      
+      // Обновляем CSS стили toolbar
+      final containerElement = html.document.getElementById(_editorId);
+      if (containerElement != null) {
+        final toolbar = containerElement.querySelector('.ql-toolbar');
+        if (toolbar != null) {
+          if (widget.readOnly) {
+            toolbar.style
+              ..pointerEvents = 'none'
+              ..opacity = '1'
+              ..cursor = 'not-allowed';
+          } else {
+            toolbar.style
+              ..pointerEvents = 'auto'
+              ..opacity = '1'
+              ..cursor = 'pointer';
+          }
+        }
+      }
+    } catch (_) {}
+  }
+
   void _registerViewFactory() {
     // ignore: undefined_prefixed_name
     ui_web.platformViewRegistry.registerViewFactory(_editorId, (int viewId) {
@@ -124,6 +161,9 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
       );
 
       _quillEditor = createQuillEditor(editorContainer, options);
+
+      // В режиме readOnly отключаем взаимодействие с toolbar через CSS
+      _updateReadOnly();
 
       if (widget.initialContent != null && widget.initialContent!.isNotEmpty) {
         _quillEditor!.setHTML(widget.initialContent!);

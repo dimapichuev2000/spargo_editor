@@ -1,4 +1,7 @@
 
+## 0.0.5
+* Blocking the header by readOnly
+
 ## 0.0.4
 * Сhanged the download
 
