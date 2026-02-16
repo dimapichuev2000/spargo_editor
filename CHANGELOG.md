@@ -1,3 +1,6 @@
+## 0.0.7
+* Fix files
+
 ## 0.0.6
 * A wrapper for easy installation and some additional editor properties
 
