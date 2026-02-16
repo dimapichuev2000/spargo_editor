@@ -45,9 +45,7 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
   void initState() {
     super.initState();
     _editorId = 'quill-editor-${const Uuid().v4()}';
-    ensureQuillWebAssetsInjected().then((_) {
-      if (mounted) _registerViewFactory();
-    });
+    _registerViewFactory();
   }
 
   @override
@@ -88,6 +86,7 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
   }
 
   void _registerViewFactory() {
+    ensureQuillWebAssetsInjected();
     // ignore: undefined_prefixed_name
     ui_web.platformViewRegistry.registerViewFactory(_editorId, (int viewId) {
       final container = html.DivElement()

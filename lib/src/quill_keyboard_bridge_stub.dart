@@ -2,4 +2,4 @@
 
 bool spargoTryInsertTabSpacesAtActiveQuill() => false;
 bool spargoTryInsertSpaceAtActiveQuill() => false;
-Future<void> ensureQuillWebAssetsInjected() async {}
+void ensureQuillWebAssetsInjected() {}
