@@ -1,6 +1,6 @@
 name: spargo_editor
 description: "A text editor based on Ouill.js for Flutter"
-version: 0.0.5
+version: 0.0.6
 homepage:
 
 environment:

@@ -1,3 +1,5 @@
+## 0.0.6
+* A wrapper for easy installation and some additional editor properties
 
 ## 0.0.5
 * Blocking the header by readOnly
