@@ -38,36 +38,31 @@ dependencies:
 ```html
 <!-- Quill.js -->
 <script src="libs/quill.js"></script>
-<script>
-  window.addEventListener('load', function() {
-    if (typeof Quill !== 'undefined') {
-      window.createQuillEditor = function(container, options) {
-        const editor = new Quill(container, options);
-        
-        // Включаем проверку орфографии на русском языке
-        const editorElement = editor.root;
-        editorElement.setAttribute('spellcheck', 'true');
-        editorElement.setAttribute('lang', 'ru');
-        editorElement.spellcheck = true;
-        
-        return editor;
-      };
-      window.quillReady = true;
-    }
-  });
-</script>
-```
 
-#### В секцию `<head>` (после других стилей):
+В секцию `<head>` (после других стилей):
 
 ```html
 <!-- Quill.js CSS -->
 <link href="libs/quill.snow.css" rel="stylesheet">
 ```
+#### Рекомендуемая обертка над корнем приложения 
+
+```dart
+import 'package:spargo_editor/spargo_editor.dart';
+
+MaterialApp(
+  builder: (context, child) {
+    return QuillKeyboardShortcuts(
+      child: child ?? const SizedBox.shrink(),
+    );
+  },
+  // ...
+)
+```
 
 #### Опционально: Настройка UI стилей
 
-Если вы хотите настроить внешний вид редактора (скругленные углы, отступы, стили кнопок), добавьте в секцию `<head>` после подключения CSS:
+Если вы хотите настроить внешний вид редактора (скругленные углы, отступы, стили кнопок), добавьте в секцию `<head>` после подключения CSS. Пример:
 
 ```html
 <style>

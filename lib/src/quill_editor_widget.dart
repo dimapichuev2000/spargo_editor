@@ -2,6 +2,7 @@ import 'dart:js_interop';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'quill_js_interop.dart';
+import 'quill_keyboard_bridge.dart';
 import 'dart:ui_web' as ui_web;
 import 'dart:html' as html;
 
@@ -44,7 +45,9 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
   void initState() {
     super.initState();
     _editorId = 'quill-editor-${const Uuid().v4()}';
-    _registerViewFactory();
+    ensureQuillWebAssetsInjected().then((_) {
+      if (mounted) _registerViewFactory();
+    });
   }
 
   @override
