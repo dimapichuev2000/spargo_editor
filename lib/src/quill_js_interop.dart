@@ -82,6 +82,10 @@ extension type QuillEditor._(JSObject _) implements JSObject {
   /// Форматировать текст
   external void formatText(JSNumber index, JSNumber length, JSString format, JSAny value);
 
+  /// Получить выделение (selection)
+  @JS('getSelection')
+  external JSObject? getSelection();
+
   /// Подписаться на событие изменения текста
   external void on(JSString eventName, JSFunction callback);
 }

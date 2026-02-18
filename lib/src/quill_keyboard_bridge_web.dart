@@ -4,6 +4,7 @@ import 'dart:js_interop';
 bool _keyboardScriptInjected = false;
 bool _quillInitInjected = false;
 bool _quillStylesInjected = false;
+bool _quillSelectionFixInjected = false;
 
 void _injectKeyboardScript() {
   if (_keyboardScriptInjected) return;
@@ -68,9 +69,24 @@ void _injectQuillEditorStyles() {
   html.document.head?.append(style);
 }
 
+/// Фикс выделения при вставке текста из тёмной темы (inline color/background делают выделение чёрным).
+void _injectQuillSelectionFix() {
+  if (_quillSelectionFixInjected) return;
+  _quillSelectionFixInjected = true;
+  final style = html.StyleElement()
+    ..text = r'''
+.ql-editor::selection,.ql-editor *::selection{background-color:#b3d7ff!important;color:#000!important}
+.ql-editor::-moz-selection,.ql-editor *::-moz-selection{background-color:#b3d7ff!important;color:#000!important}
+[id^="quill-editor-"] .ql-editor::selection,[id^="quill-editor-"] .ql-editor *::selection{background-color:#b3d7ff!important;color:#000!important}
+[id^="quill-editor-"] .ql-editor::-moz-selection,[id^="quill-editor-"] .ql-editor *::-moz-selection{background-color:#b3d7ff!important;color:#000!important}
+''';
+  html.document.head?.append(style);
+}
+
 void ensureQuillWebAssetsInjected() {
   _injectQuillInitScript();
   _injectQuillEditorStyles();
+  _injectQuillSelectionFix();
 }
 
 @JS('spargoInsertTabSpacesAtActiveQuill')

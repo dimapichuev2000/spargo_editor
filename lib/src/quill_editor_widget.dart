@@ -54,6 +54,25 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
     if (oldWidget.readOnly != widget.readOnly && _quillEditor != null) {
       _updateReadOnly();
     }
+    // Обновляем содержимое редактора при изменении initialContent
+    if (oldWidget.initialContent != widget.initialContent && _quillEditor != null) {
+      _updateContent();
+    }
+  }
+
+  void _updateContent() {
+    if (_quillEditor == null || widget.initialContent == null) return;
+    try {
+      _quillEditor!.setHTML(widget.initialContent!);
+    } catch (_) {}
+  }
+
+  /// Публичный метод для программного обновления содержимого редактора
+  void setContent(String html) {
+    if (_quillEditor == null) return;
+    try {
+      _quillEditor!.setHTML(html);
+    } catch (_) {}
   }
 
   void _updateReadOnly() {
@@ -83,6 +102,144 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
         }
       }
     } catch (_) {}
+  }
+
+  // Константы
+  static const _pasteDelayMs = 50;
+  static final _urlRegex = RegExp(
+    r'(https?://[^\s<>"{}|\\^`\[\]]+|www\.[^\s<>"{}|\\^`\[\]]+|[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}[^\s<>"{}|\\^`\[\]]*)',
+    caseSensitive: false,
+  );
+
+  /// Настройка обработчика вставки: преобразование URL в ссылки и очистка стилей
+  void _setupPasteHandler() {
+    if (_quillEditor == null) return;
+    
+    try {
+      final editorElement = _getEditorElement();
+      if (editorElement != null) {
+        editorElement.onPaste.listen((e) {
+          Future.delayed(const Duration(milliseconds: _pasteDelayMs), () {
+            _processPastedContent();
+          });
+        });
+      }
+    } catch (_) {}
+  }
+
+  /// Обработка вставленного контента: преобразование URL в ссылки и очистка стилей
+  void _processPastedContent() {
+    final editorElement = _getEditorElement();
+    if (editorElement == null) return;
+
+    _convertUrlsToLinks(editorElement);
+    _cleanInlineStyles(editorElement);
+    _ensureLinksAreActive(editorElement);
+  }
+
+  /// Получение элемента редактора
+  html.HtmlElement? _getEditorElement() {
+    try {
+      final container = html.document.getElementById(_editorId);
+      return container?.querySelector('.ql-editor') as html.HtmlElement?;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Преобразование URL в тексте в кликабельные ссылки
+  void _convertUrlsToLinks(html.HtmlElement editorElement) {
+    try {
+      final htmlContent = editorElement.innerHtml;
+      if (htmlContent == null || htmlContent.isEmpty) return;
+
+      // Если уже есть ссылки, пропускаем преобразование
+      if (htmlContent.contains('<a ')) return;
+
+      final textContent = editorElement.text ?? '';
+      if (textContent.isEmpty) return;
+
+      final matches = _urlRegex.allMatches(textContent);
+      if (matches.isEmpty) return;
+
+      String newHtml = htmlContent;
+      // Обрабатываем URL в обратном порядке, чтобы не сбить позиции
+      for (final match in matches.toList()..sort((a, b) => b.start.compareTo(a.start))) {
+        final url = match.group(0);
+        if (url == null) continue;
+
+        final normalizedUrl = _normalizeUrl(url);
+        final escapedUrl = _escapeHtmlAttribute(url);
+        final escapedNormalizedUrl = _escapeHtmlAttribute(normalizedUrl);
+
+        newHtml = newHtml.replaceAllMapped(
+          RegExp(RegExp.escape(url)),
+          (_) => '<a href="$escapedNormalizedUrl">$escapedUrl</a>',
+        );
+      }
+
+      if (newHtml != htmlContent) {
+        editorElement.innerHtml = newHtml;
+        editorElement.dispatchEvent(html.CustomEvent('input'));
+      }
+    } catch (_) {}
+  }
+
+  /// Нормализация URL (добавление https:// если нужно)
+  String _normalizeUrl(String url) {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return url.startsWith('www.') ? 'https://$url' : 'https://$url';
+  }
+
+  /// Очистка inline-стилей color и background-color (исключая ссылки)
+  void _cleanInlineStyles(html.HtmlElement editorElement) {
+    try {
+      for (final el in editorElement.querySelectorAll('*')) {
+        if (el is html.HtmlElement && el.tagName.toLowerCase() != 'a') {
+          el.style.removeProperty('color');
+          el.style.removeProperty('background-color');
+        }
+      }
+    } catch (_) {}
+  }
+
+  /// Проверка и восстановление активности ссылок
+  void _ensureLinksAreActive(html.HtmlElement editorElement) {
+    try {
+      for (final link in editorElement.querySelectorAll('a')) {
+        if (link is html.AnchorElement) {
+          final href = link.href;
+          if (href == null || href.isEmpty || href == 'null' || href == 'undefined') {
+            final text = link.text;
+            if (text != null && text.isNotEmpty && _isUrlLike(text)) {
+              link.href = _normalizeUrl(text);
+            }
+          }
+          link.style
+            ..pointerEvents = 'auto'
+            ..cursor = 'pointer';
+        }
+      }
+    } catch (_) {}
+  }
+
+  /// Проверка, похож ли текст на URL
+  bool _isUrlLike(String text) {
+    return text.startsWith('http://') ||
+        text.startsWith('https://') ||
+        text.startsWith('www.') ||
+        text.contains('.');
+  }
+
+  /// Экранирование атрибутов HTML
+  String _escapeHtmlAttribute(String text) {
+    return text
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
   }
 
   void _registerViewFactory() {
@@ -164,6 +321,9 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
 
       _quillEditor = createQuillEditor(editorContainer, options);
 
+      // Настройка обработки вставки для сохранения ссылок и очистки стилей
+      _setupPasteHandler();
+
       // В режиме readOnly отключаем взаимодействие с toolbar через CSS
       _updateReadOnly();
 
@@ -173,6 +333,12 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
 
       if (widget.onChanged != null) {
         _quillEditor!.on('text-change'.toJS, (() {
+          // Очищаем inline-стили color/background-color при изменении текста
+          final editorElement = _getEditorElement();
+          if (editorElement != null) {
+            _cleanInlineStyles(editorElement);
+            _ensureLinksAreActive(editorElement);
+          }
           widget.onChanged?.call(_quillEditor!.getHTML());
         }).toJS);
       }
@@ -196,13 +362,6 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
     } catch (_) {
       return null;
     }
-  }
-
-  /// Установить содержимое редактора
-  void setContent(String html) {
-    try {
-      _quillEditor?.setHTML(html);
-    } catch (_) {}
   }
 
   @override
