@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:spargo_editor/spargo_editor.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 void main() {
   runApp(const MyApp());
@@ -101,8 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       )
                     : SingleChildScrollView(
-                        child: HtmlWidget(
-                          _content,
+                        child: QuillHtmlWidget(
+                          content: _content,
                           textStyle: const TextStyle(fontSize: 16),
                         ),
                       ),

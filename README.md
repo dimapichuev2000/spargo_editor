@@ -219,7 +219,8 @@ MaterialApp(
 
 ## Использование
 
-### Базовое использование
+
+### Базовое использование редактора
 
 ```dart
 import 'package:quill_editor/quill_editor.dart';
@@ -263,6 +264,38 @@ String? text = editorKey.currentState?.getText();
 // Установить содержимое
 editorKey.currentState?.setContent('<p>Новый текст</p>');
 ```
+### Отображение Quill HTML (QuillHtmlWidget)
+
+Для отображения уже готового Quill HTML (режим «только чтение») без встраивания веб-редактора используйте `QuillHtmlWidget`. Виджет рендерит HTML через `flutter_widget_from_html`, применяет препроцессинг списков (нумерация, маркеры, вложенность как в quill.snow.css) и стили выравнивания/отступов.
+
+**Возможности:**
+- нумерованные и маркированные списки с правильной вложенностью (1. a. i. …);
+- чекбоксы (checked/unchecked);
+- ссылки — по клику открываются во внешнем приложении (браузер);
+- выравнивание и отступы (ql-align-*, ql-indent-*).
+
+**Пример:**
+
+```dart
+import 'package:spargo_editor/spargo_editor.dart';
+
+QuillHtmlWidget(
+  content: '<ol><li data-list="ordered">Пункт 1</li><li data-list="bullet" class="ql-indent-1">Подпункт</li></ol>',
+  padding: const EdgeInsets.all(8),
+  textStyle: TextStyle(fontSize: 14),
+)
+```
+
+**Параметры:**
+- `content` (String) — HTML в формате Quill (теги с `data-list`, классы `ql-indent-N`, `ql-align-*` и т.д.).
+- `padding` (EdgeInsets?) — отступы вокруг контента.
+- `textStyle` (TextStyle?) — базовый стиль текста.
+- `onTapUrl` (Future<bool> Function(String url)?) — обработчик клика по ссылке. Если не задан, используется открытие URL через `url_launcher`.
+
+Для тонкой настройки стилей или препроцессинга можно использовать утилиты `QuillHtmlDisplay.preprocessQuillHtml(html)` и `QuillHtmlDisplay.buildStyles(context, element)` и свой виджет на базе `HtmlWidget` из `flutter_widget_from_html`.
+
+---
+
 
 ## Поддерживаемые платформы
 

@@ -1,3 +1,6 @@
+## 0.0.9
+* Fixed the visual bugs of the editor and added HtmlWidget with its own styles.
+
 ## 0.0.8
 * Setting up focus
 
