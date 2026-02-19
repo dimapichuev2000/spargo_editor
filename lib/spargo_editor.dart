@@ -2,5 +2,7 @@
 library quill_editor;
 
 export 'src/quill_editor_widget.dart';
+export 'src/quill_html_display.dart';
+export 'src/quill_html_widget.dart';
 export 'src/quill_keyboard_bridge.dart';
 export 'src/quill_keyboard_shortcuts.dart';
