@@ -127,14 +127,18 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
     } catch (_) {}
   }
 
-  /// Обработка вставленного контента: преобразование URL в ссылки и очистка стилей
+  /// Обработка вставленного контента: конвертация URL в ссылки через Quill API.
+  /// Не трогает innerHTML — курсор и всё форматирование (цвет, списки и т.д.) сохраняются.
+  /// Уже оформленные ссылки пропускаются → можно вставлять сколько угодно ссылок.
   void _processPastedContent() {
+    if (_quillEditor == null) return;
+    try {
+      spargoApplyUrlLinks(_quillEditor!);
+    } catch (_) {}
     final editorElement = _getEditorElement();
-    if (editorElement == null) return;
-
-    _convertUrlsToLinks(editorElement);
-    _cleanInlineStyles(editorElement);
-    _ensureLinksAreActive(editorElement);
+    if (editorElement != null) {
+      _ensureLinksAreActive(editorElement);
+    }
   }
 
   /// Получение элемента редактора
@@ -193,16 +197,32 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
     return url.startsWith('www.') ? 'https://$url' : 'https://$url';
   }
 
-  /// Очистка inline-стилей color и background-color (исключая ссылки)
+  /// Очистка inline-стилей color и background-color (исключая ссылки и элементы с классами Quill)
+  /// Не трогаем элементы внутри <a>, чтобы не сбивать форматирование ссылок.
   void _cleanInlineStyles(html.HtmlElement editorElement) {
     try {
       for (final el in editorElement.querySelectorAll('*')) {
-        if (el is html.HtmlElement && el.tagName.toLowerCase() != 'a') {
+        if (el is! html.HtmlElement || el.tagName.toLowerCase() == 'a') continue;
+        // Не удаляем стили у содержимого внутри ссылки — сохраняем форматирование ссылки
+        if (_isInsideLink(el)) continue;
+        final classes = el.className.toString();
+        final hasQuillColorClass = classes.contains('ql-color-') || classes.contains('ql-bg-');
+        if (!hasQuillColorClass) {
           el.style.removeProperty('color');
           el.style.removeProperty('background-color');
         }
       }
     } catch (_) {}
+  }
+
+  /// Проверка, находится ли элемент внутри тега <a>
+  bool _isInsideLink(html.HtmlElement el) {
+    html.Element? parent = el.parent;
+    while (parent != null) {
+      if (parent.tagName.toLowerCase() == 'a') return true;
+      parent = parent.parent;
+    }
+    return false;
   }
 
   /// Проверка и восстановление активности ссылок
@@ -333,10 +353,11 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
 
       if (widget.onChanged != null) {
         _quillEditor!.on('text-change'.toJS, (() {
-          // Очищаем inline-стили color/background-color при изменении текста
+          // Не очищаем inline-стили при обычных изменениях текста,
+          // чтобы сохранить цвета, установленные через Quill цветовой пикер.
+          // Очистка стилей происходит только при вставке (paste).
           final editorElement = _getEditorElement();
           if (editorElement != null) {
-            _cleanInlineStyles(editorElement);
             _ensureLinksAreActive(editorElement);
           }
           widget.onChanged?.call(_quillEditor!.getHTML());

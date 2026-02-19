@@ -1,3 +1,6 @@
+## 0.0.10
+* Fixed link
+
 ## 0.0.9
 * Fixed the visual bugs of the editor and added HtmlWidget with its own styles.
 

@@ -29,6 +29,15 @@ bool isQuillLoaded() {
 @JS('createQuillEditor')
 external QuillEditor _createQuillEditor(JSObject container, JSObject options);
 
+/// Применяет link-формат ко всем URL в тексте редактора через Quill API
+/// (не заменяет innerHTML — курсор и всё форматирование сохраняются).
+@JS('spargoApplyUrlLinks')
+external void _spargoApplyUrlLinks(QuillEditor editor);
+
+void spargoApplyUrlLinks(QuillEditor editor) {
+  _spargoApplyUrlLinks(editor);
+}
+
 /// Создать новый экземпляр Quill редактора
 QuillEditor createQuillEditor(JSObject container, JSObject options) {
   if (!isQuillLoaded()) {

@@ -5,6 +5,7 @@ bool _keyboardScriptInjected = false;
 bool _quillInitInjected = false;
 bool _quillStylesInjected = false;
 bool _quillSelectionFixInjected = false;
+bool _applyUrlLinksInjected = false;
 
 void _injectKeyboardScript() {
   if (_keyboardScriptInjected) return;
@@ -83,10 +84,51 @@ void _injectQuillSelectionFix() {
   html.document.head?.append(style);
 }
 
+/// Вставляет глобальную JS-функцию spargoApplyUrlLinks(editor).
+/// Находит все URL в тексте Quill-редактора и применяет к ним формат link
+/// через Quill API (formatText), не трогая innerHTML — курсор и форматирование сохраняются.
+/// Уже оформленные ссылки пропускаются, поэтому можно вставлять сколько угодно ссылок.
+void _injectApplyUrlLinksScript() {
+  if (_applyUrlLinksInjected) return;
+  _applyUrlLinksInjected = true;
+  final script = html.ScriptElement()
+    ..text = r'''
+(function () {
+  if (window.spargoApplyUrlLinks) return;
+  var URL_REGEX = /(https?:\/\/[^\s<>"{}|\\^`\[\]]+|www\.[^\s<>"{}|\\^`\[\]]+)/gi;
+  window.spargoApplyUrlLinks = function (editor) {
+    try {
+      var text = editor.getText();
+      var matches = [];
+      var m;
+      URL_REGEX.lastIndex = 0;
+      while ((m = URL_REGEX.exec(text)) !== null) {
+        matches.push({ index: m.index, length: m[0].length, url: m[0] });
+      }
+      // Обрабатываем в обратном порядке — formatText не сдвигает индексы предыдущих диапазонов
+      for (var i = matches.length - 1; i >= 0; i--) {
+        var match = matches[i];
+        try {
+          var formats = editor.getFormat(match.index, match.length);
+          if (!formats.link) {
+            var href = /^https?:\/\//i.test(match.url) ? match.url : ('https://' + match.url);
+            // 'api' — не тригерим user-initiated history, курсор не трогается
+            editor.formatText(match.index, match.length, 'link', href, 'api');
+          }
+        } catch (e2) {}
+      }
+    } catch (e) {}
+  };
+})();
+''';
+  html.document.head?.append(script);
+}
+
 void ensureQuillWebAssetsInjected() {
   _injectQuillInitScript();
   _injectQuillEditorStyles();
   _injectQuillSelectionFix();
+  _injectApplyUrlLinksScript();
 }
 
 @JS('spargoInsertTabSpacesAtActiveQuill')
